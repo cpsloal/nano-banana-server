@@ -6,7 +6,10 @@
     "nano-banana-server-remote": {
       "command": "npx",
       "args": [
-        "github:cpsloal/nano-banana-server"
+        "--package=github:cpsloal/nano-banana-server",
+        "npm",
+        "run",
+        "start"
       ],
       "properties": {
         "gemini_api_key": "${env:GEMINI_API_KEY}"

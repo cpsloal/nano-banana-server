@@ -1,3 +1,4 @@
+// No shebang needed at the top
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -5,21 +6,20 @@ import { z } from "zod";
 
 // 1. Create and configure the MCP server
 const server = new McpServer({
-  name: "nano-banana-image-generator",
+  name: "gemini-image-generator",
   version: "1.0.0",
 });
 
 // 2. Define the image generation tool
 server.registerTool("generate_image", {
   title: "Generate Image",
-  description: "Generates an image from a text prompt using the gemini-2.5-flash-image-preview (aka nano-banana) model.",
+  description: "Generates an image from a text prompt using the gemini-2.5-flash-image-preview model.",
   inputSchema: {
     prompt: z.string().describe("The text prompt describing the image to generate."),
   },
-  
+
   // 3. Implement the tool's execution logic
   async run({ prompt }, context) {
-    // Access the API key from server properties provided in mcp.json
     const apiKey = context.server.props.get("gemini_api_key");
 
     if (!apiKey) {
@@ -37,12 +37,11 @@ server.registerTool("generate_image", {
 
       const result = await model.generateContent([prompt]);
       const response = result.response;
-      
-      // Assuming the image data is in the first part of the response
+
       const imagePart = response.parts.find(part => part.inlineData && part.inlineData.mimeType.startsWith('image/'));
       
       if (!imagePart) {
-          return { content: [{ type: "text", text: "Error: No image data returned from the API." }] };
+        return { content: [{ type: "text", text: "Error: No image data returned from the API." }] };
       }
 
       const base64Image = Buffer.from(imagePart.inlineData.data, 'binary').toString('base64');
@@ -66,6 +65,11 @@ server.registerTool("generate_image", {
   },
 });
 
-// 4. Start the server using standard I/O for communication
-server.listen(new StdioServerTransport());
-console.log("Gemini Image Generation MCP Server is running.");
+// 4. Create and export the runner function (THE FIX IS HERE)
+export const run = server.createRunner(new StdioServerTransport());
+
+// 5. Run the server if the script is executed directly
+if (process.argv[1] === new URL(import.meta.url).pathname) {
+  console.log("Gemini Image Generation MCP Server starting...");
+  run();
+}
