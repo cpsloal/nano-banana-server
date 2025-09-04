@@ -1,13 +1,12 @@
-import { McpServer, runStdioServer } from "@modelcontextprotocol/sdk/server";
+import { McpServer, runStdioServer } from "@modelcontextprotocol/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { z } from "zod";
 
 // 1. Create and configure the MCP server instance
 const server = new McpServer({
   name: "gemini-image-generator",
-  version: "1.2.0", // Match package.json
+  version: "1.2.0",
   tools: {
-    // Tools are now defined in the constructor
     generate_image: {
       title: "Generate Image",
       description: "Generates an image from a text prompt using the gemini-2.5-flash-image-preview model.",
@@ -15,7 +14,6 @@ const server = new McpServer({
         prompt: z.string().describe("The text prompt describing the image to generate."),
       }),
       
-      // The 'run' function is now part of the tool definition
       async run({ prompt }, context) {
         const apiKey = context.server.props.get("gemini_api_key");
         if (!apiKey) {
@@ -49,6 +47,6 @@ const server = new McpServer({
   },
 });
 
-// 3. Start the server using the correct top-level function for this SDK version
+// 3. Start the server using the correct top-level function
 console.log("Gemini Image Generation MCP Server starting...");
 runStdioServer(server);
