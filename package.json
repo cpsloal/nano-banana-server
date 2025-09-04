@@ -1,0 +1,18 @@
+{
+  "name": "nano-banana-server",
+  "version": "1.0.0",
+  "description": "An MCP server for generating images with Gemini.",
+  "type": "module",
+  "main": "server.js",
+  "bin": {
+    "nano-banana-server": "start"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.14.1",
+    "@modelcontextprotocol/sdk": "^0.2.2",
+    "zod": "^3.23.8"
+  }
+}
